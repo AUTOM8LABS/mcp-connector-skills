@@ -1,0 +1,10 @@
+{
+  "name": "dynamo-connector",
+  "description": "Operator skill for MCP Connector for Dynamo (AUTOM8LABS) - build, wire, run and verify Dynamo graphs with AI efficiently.",
+  "version": "1.0.0",
+  "author": {
+    "name": "AUTOM8LABS",
+    "email": "info@autom8labs.io",
+    "url": "https://autom8labs.io"
+  }
+}

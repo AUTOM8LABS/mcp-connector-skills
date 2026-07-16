@@ -1,0 +1,10 @@
+{
+  "name": "grasshopper-connector",
+  "description": "Operator skill for MCP Connector for Grasshopper (AUTOM8LABS) - build, inspect, run and fix Grasshopper definitions with AI, including Rhino.Inside Revit.",
+  "version": "1.0.0",
+  "author": {
+    "name": "AUTOM8LABS",
+    "email": "info@autom8labs.io",
+    "url": "https://autom8labs.io"
+  }
+}

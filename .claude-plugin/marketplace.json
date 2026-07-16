@@ -1,0 +1,45 @@
+{
+  "name": "autom8labs-mcp-skills",
+  "owner": {
+    "name": "AUTOM8LABS",
+    "email": "info@autom8labs.io",
+    "url": "https://autom8labs.io"
+  },
+  "plugins": [
+    {
+      "name": "revit-connector",
+      "source": "./revit",
+      "description": "Operator skill for MCP Connector for Revit - efficient tool usage, token discipline, workflows and gotchas for driving Autodesk Revit with AI."
+    },
+    {
+      "name": "autocad-connector",
+      "source": "./autocad",
+      "description": "Operator skill for MCP Connector for AutoCAD - efficient tool usage, token discipline, workflows and gotchas for driving AutoCAD with AI."
+    },
+    {
+      "name": "navisworks-connector",
+      "source": "./navisworks",
+      "description": "Operator skill for MCP Connector for Navisworks - efficient tool usage, token discipline, workflows and gotchas for driving Navisworks with AI."
+    },
+    {
+      "name": "microstation-connector",
+      "source": "./microstation",
+      "description": "Operator skill for MCP Connector for MicroStation - efficient tool usage, token discipline, workflows and gotchas for driving MicroStation with AI."
+    },
+    {
+      "name": "dynamo-connector",
+      "source": "./dynamo",
+      "description": "Operator skill for MCP Connector for Dynamo - build, wire and run Dynamo graphs with AI efficiently."
+    },
+    {
+      "name": "3dsmax-connector",
+      "source": "./3dsmax",
+      "description": "Operator skill for MCP Connector for 3ds Max - efficient tool usage, workflows and gotchas for driving 3ds Max with AI."
+    },
+    {
+      "name": "grasshopper-connector",
+      "source": "./grasshopper",
+      "description": "Operator skill for MCP Connector for Grasshopper - build, inspect, run and fix Grasshopper definitions with AI, including Rhino.Inside Revit."
+    }
+  ]
+}
