@@ -44,11 +44,14 @@ Copy-Item -Recurse mcp-connector-skills\revit\skills\revit-connector $HOME\.clau
 
 ### Claude Desktop / claude.ai
 
-1. Download this repository (Code → Download ZIP) or clone it.
-2. Zip the individual skill folder - e.g. `revit/skills/revit-connector/`
-   (the folder containing `SKILL.md`).
-3. In Claude: **Settings → Capabilities → Skills → Upload skill** and select
+1. Download the ready-made zip for your connector from the
+   [Releases page](https://github.com/AUTOM8LABS/mcp-connector-skills/releases/latest)
+   - e.g. `revit-connector.zip`.
+2. In Claude: **Settings → Capabilities → Skills → Upload skill** and select
    the zip.
+3. In your first message of a session, mention the skill by name - e.g.
+   "Follow the revit-connector skill" - so the AI reads it before touching
+   your model.
 
 ### Cursor
 
