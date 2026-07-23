@@ -56,6 +56,9 @@ were all learned from real sessions; skip one and you repeat its lesson.
   `get_recipe kangaroo-membrane`.
 - A definition someone else made: `open_definition` +
   `get_definition_summary` before touching anything.
+- Every tool except `ping` returning a purchase message means the trial
+  or licence has lapsed - relay that plainly and stop; do not retry or
+  improvise around it.
 
 ## Showing results
 

@@ -79,11 +79,11 @@ not a query language - mirror what the Properties panel shows.
 | triage clashes | set_clash_result_status, assign_clash_result, add_clash_comment, group_clash_results (Pro) |
 | issue a clash report | export_clash_report (Pro) |
 | colour / isolate | override_appearance, isolate_items; reset with reset_appearances / unhide_all (Pro) |
-| viewpoints | list_saved_viewpoints, create_saved_viewpoint, apply_saved_viewpoint (Pro) |
+| viewpoints | list_saved_viewpoints (free); create_saved_viewpoint, apply_saved_viewpoint (Pro) |
 | 4D / 5D data | list_timeliner_tasks, get_quantification_summary |
 | publish or hand off | export_nwd, export_nwf, publish_nwd, export_nwc (Pro) |
 | extract data | export_properties, export_model_tree (Pro, CSV) |
-| show the user | zoom_to_items, zoom_to_selection, set_camera, capture_view_image (Pro) |
+| show the user | zoom_to_items, zoom_to_selection, set_camera (free); capture_view_image (Pro) |
 
 ## Clash workflow (the headline Pro chain)
 

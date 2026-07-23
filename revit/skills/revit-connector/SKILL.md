@@ -65,7 +65,7 @@ Check get_project_units when it matters. Do not assume one convention.
   (`ES-xxxx`) that most tools accept directly as `elementIds`. Pass the
   handle instead of re-listing ids; expand it with get_element_set only
   when you need the individual ids.
-- **Protect a working selection:** pin_selection; release with
+- **Protect a working selection:** pin_selection (Pro); release with
   unpin_selection.
 - **Spatial language** ("move it left / up / north"): resolve direction
   from the active view and real references (get_active_view, get_grids,
@@ -75,8 +75,9 @@ Check get_project_units when it matters. Do not assume one convention.
 ## Safety
 
 Confirm before anything that removes or rewrites model data, and use dry
-runs where a tool offers them (`dryRun` on purge_unused, find_replace,
-Excel import, MEP openings, and most creation tools).
+runs where a tool offers them (`dryRun` on purge_unused,
+find_replace_parameter, Excel import, MEP openings, and most creation
+tools).
 
 - Treat as destructive and confirm first: purge_unused, compact_model,
   delete_sheets, delete_views, remove_links, prune_design_options,
@@ -108,6 +109,7 @@ Go straight to these; do not explore.
 | Excel round-trip | export_parameters_to_excel, import_parameters_from_excel |
 | clash / MEP coordination | check_model_interferences, detect_mep_penetrations |
 | create geometry | create_grids, create_levels, create_floor, create_ceiling, create_roof |
+| edit or build families | open_family, create_family, flex_family, load_family_into_project |
 | see the view as an image | capture_view |
 
 ## Workflows
@@ -160,15 +162,18 @@ then create_mep_openings / cut_mep_openings (dryRun first).
 export_clash_report for the record.
 
 ### Model audit
-audit_model_health, audit_parameter_completeness, then purge_unused
-(dryRun first), compact_model, and report metrics before and after.
+audit_model_health for the headline metrics, then purge_unused (dryRun
+first), compact_model, and report metrics before and after. For
+parameter completeness, read get_parameter_values_by_category and report
+the blanks.
 
 ## Tool catalogue
 
 Free edition: ~37 read-only tools (document, elements, project, views,
-families, selection, schedules, utility). Pro adds ~144 tools across 11
-packs: Annotation, Views & Sheets, Issue (export), Model Management,
-Warnings, Reporting, Data, Modelling, Coordination, Selection, Planning.
+families, selection, schedules, utility). Pro adds the premium tools
+across 11 packs: Annotation, Views & Sheets, Issue (export), Model
+Management, Warnings, Reporting, Data, Modelling, Coordination,
+Selection, Family (family editing).
 **The live tool list is the source of truth for exact names and counts.**
 If a tool you need is not offered to you, say so - on the Free edition
 that usually means it is a Pro tool; do not improvise with the wrong one.
