@@ -14,7 +14,7 @@ wastes far less of your context window and makes fewer mistakes.
 | [`revit-connector`](revit/skills/revit-connector/SKILL.md) | MCP Connector for Revit | Revit 2022–2027 |
 | [`autocad-connector`](autocad/skills/autocad-connector/SKILL.md) | MCP Connector for AutoCAD | AutoCAD 2022–2027 |
 | [`navisworks-connector`](navisworks/skills/navisworks-connector/SKILL.md) | MCP Connector for Navisworks | Navisworks 2024–2027 |
-| [`microstation-connector`](microstation/skills/microstation-connector/SKILL.md) | MCP Connector for MicroStation | MicroStation 2024 |
+| [`microstation-connector`](microstation/skills/microstation-connector/SKILL.md) | MCP Connector for MicroStation | MicroStation 2023–2026 |
 | [`dynamo-connector`](dynamo/skills/dynamo-connector/SKILL.md) | MCP Connector for Dynamo | Dynamo 3.x (Revit 2025/2026, Sandbox) |
 | [`3dsmax-connector`](3dsmax/skills/3dsmax-connector/SKILL.md) | MCP Connector for 3ds Max | 3ds Max 2022–2027 |
 | [`grasshopper-connector`](grasshopper/skills/grasshopper-connector/SKILL.md) | MCP Connector for Grasshopper | Rhino 8 / Rhino.Inside Revit |
