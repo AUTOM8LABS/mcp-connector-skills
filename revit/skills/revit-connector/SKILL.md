@@ -133,6 +133,8 @@ Go straight to these; do not explore.
 3. tag_elements_in_view (`arch_basics` covers rooms + doors + windows).
 4. check_annotation_clashes, then tidy with align_annotations or
    remove_empty_tags.
+5. Read the view back and report the dimensions and tags that are actually
+   there - see gotcha 10.
 
 ### Views and sheets
 create_views, then create_sheets / create_batch_sheets /
@@ -197,6 +199,12 @@ that usually means it is a Pro tool; do not improvise with the wrong one.
    means the seat is not licensed for Pro - relay that honestly.
 9. **Exports write files and return paths** - relay the path, never ask
    for file content inline.
+10. **A created dimension can disappear without an error.** Revit accepts
+    references at creation and then drops the dimension at the next
+    regeneration if it does not like them. A success response is not proof
+    the dimension exists. After create_dimensions or an auto_dimension_*
+    run, read the view back and report the count you actually find, not the
+    count you asked for.
 
 ## Response style
 
