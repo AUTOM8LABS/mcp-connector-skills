@@ -1,7 +1,7 @@
 {
   "name": "revit-connector",
   "description": "Operator skill for MCP Connector for Revit (AUTOM8LABS) - efficient tool usage, token discipline, workflows and gotchas for driving Revit with AI.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "AUTOM8LABS",
     "email": "info@autom8labs.io",

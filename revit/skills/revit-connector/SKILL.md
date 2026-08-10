@@ -79,10 +79,11 @@ runs where a tool offers them (`dryRun` on purge_unused,
 find_replace_parameter, Excel import, MEP openings, and most creation
 tools).
 
-- Treat as destructive and confirm first: purge_unused, compact_model,
-  delete_sheets, delete_views, remove_links, prune_design_options,
-  delete_unplaced_rooms_areas_spaces, remove_annotations_in_view,
-  ungroup_elements, and bulk batch_modify_by_filter.
+- Treat as destructive and confirm first: delete_elements, purge_unused,
+  compact_model, delete_sheets, delete_views, remove_links,
+  prune_design_options, delete_unplaced_rooms_areas_spaces,
+  remove_annotations_in_view, ungroup_elements, and bulk
+  batch_modify_by_filter.
 - save_as and open_model change which file you are working on - say so.
 - On workshared models, finish with sync_and_relinquish (or
   relinquish_all).
@@ -95,8 +96,10 @@ Go straight to these; do not explore.
 |---|---|
 | see the model state / warning count | get_document_info, get_document_warnings |
 | fix model warnings | select_warning_elements, then the resolve_* tools |
-| dimension grids, levels, openings, rooms | auto_dimension_grids / _levels / _openings / _rooms |
+| dimension plans (grids, openings, rooms) | auto_dimension_grids / _openings / _rooms |
+| dimension elevations or sections | auto_dimension_levels / _openings_in_elevation / _curtain_walls / _host_layers |
 | tag elements in views | tag_elements_in_view |
+| room tags that do not fit their rooms | fit_room_tags |
 | find specific elements | search_elements (filtered) |
 | read or change many parameters | get_parameter_values_by_category, batch_set_parameters |
 | make sheets and place views | create_sheets, place_views_on_sheets |
@@ -109,6 +112,9 @@ Go straight to these; do not explore.
 | Excel round-trip | export_parameters_to_excel, import_parameters_from_excel |
 | clash / MEP coordination | check_model_interferences, detect_mep_penetrations |
 | create geometry | create_grids, create_levels, create_floor, create_ceiling, create_roof |
+| move, rotate, or mirror elements | move_elements, rotate_elements, mirror_elements |
+| edit grouped elements | get_groups, then edit_in_group |
+| place families from a coordinate table | place_families_from_excel (get_coordinate_system first if placing by Easting/Northing) |
 | edit or build families | open_family, create_family, flex_family, load_family_into_project |
 | see the view as an image | capture_view |
 
@@ -125,14 +131,19 @@ Go straight to these; do not explore.
 4. Re-run get_document_warnings and report before and after.
    export_warnings_report if a record is wanted.
 
-### Annotate a plan
+### Annotate a plan, elevation, or section
 1. Confirm the view (get_active_view or set_active_view).
-2. auto_dimension_grids / auto_dimension_levels / auto_dimension_openings /
-   auto_dimension_rooms; bespoke chains with create_dimensions (call
-   get_dimension_types only if a named type is needed).
+2. Plans: auto_dimension_grids / auto_dimension_openings /
+   auto_dimension_rooms. Elevations and sections: auto_dimension_levels /
+   auto_dimension_openings_in_elevation / auto_dimension_curtain_walls /
+   auto_dimension_host_layers. auto_dimension_openings is plan-only -
+   its elevation twin is auto_dimension_openings_in_elevation. Bespoke
+   chains with create_dimensions (call get_dimension_types only if a
+   named type is needed).
 3. tag_elements_in_view (`arch_basics` covers rooms + doors + windows).
-4. check_annotation_clashes, then tidy with align_annotations or
-   remove_empty_tags.
+4. check_annotation_clashes, then tidy with align_annotations,
+   fit_room_tags (rotates, retypes, or leaders room tags that overflow
+   their rooms), or remove_empty_tags.
 5. Read the view back and report the dimensions and tags that are actually
    there - see gotcha 10.
 
@@ -156,6 +167,14 @@ set_parameter (one) / batch_set_parameters (many) /
 find_replace_parameter / match_element_properties. For Excel:
 export_parameters_to_excel, edit, import_parameters_from_excel (dryRun
 first - it matches rows by the ElementId column).
+
+### Groups
+get_groups to discover types, instances, and members. Edit members with
+edit_in_group - one atomic ungroup, apply, regroup - instead of a manual
+ungroup_elements / create_group loop; propagateToOtherInstances pushes
+the edit to every instance of the type. swap_group_type propagates a
+layout variant or standardises mixed instances; place_group_instances
+stamps an existing type at points (mm).
 
 ### Coordination
 check_model_interferences (categories, optional links), then
@@ -205,6 +224,12 @@ that usually means it is a Pro tool; do not improvise with the wrong one.
     the dimension exists. After create_dimensions or an auto_dimension_*
     run, read the view back and report the count you actually find, not the
     count you asked for.
+11. **A group member edit lands in every instance of that group.**
+    Deleting or changing a member rewrites the group definition, so it
+    changes everywhere the group is placed. delete_elements blocks group
+    members by default (allowGroupMembers) - confirm that intent before
+    overriding, and prefer edit_in_group so the change is deliberate and
+    atomic.
 
 ## Response style
 
