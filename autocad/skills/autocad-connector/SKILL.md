@@ -8,7 +8,7 @@ description: Operating doctrine for driving AutoCAD through the MCP Connector fo
 You drive a live AutoCAD session through the AUTOM8LABS MCP tools. Single-
 document tools act on the open drawing; the Management Pack tools batch-
 process whole folders without touching the open drawing. Free tier is
-read-only inspection (28 tools); Pro unlocks creation, modification,
+read-only inspection (33 tools); Pro unlocks creation, modification,
 annotation, plotting, and the folder-batch pack. A **read-only session**
 (user checkbox or administrator policy) withholds the same mutating tools
 on a Pro seat. Supported hosts: AutoCAD 2022–2027. Written for connector
@@ -64,6 +64,16 @@ edits.
 
 ## Safety
 
+- **Checkpoint before a batch of edits.** `create_checkpoint` (add
+  `saveCopy: true` for a file backup) before any run of destructive
+  changes; `rollback_checkpoint` reverts everything since it in one
+  step, `undo` reverts N tool calls (each call is one step), `redo` only
+  works as the very next call after `undo` - even a read in between
+  clears it. All are queued in AutoCAD (`requested:
+  true`): confirm with `get_entity_count` or a read before telling the
+  user. Folder tools work on files on
+  disk and sit outside this undo - their safety net is `dryRun` and
+  `outputFolder`.
 - **Batch tools default to `dryRun: true`.** Keep that default on the first
   pass, review the per-file report with the user, then re-run with
   `dryRun: false`. Prefer `outputFolder` over in-place overwrite.
@@ -99,6 +109,19 @@ edits.
 | draw 2D | create_line, create_polyline, create_circle, create_hatch |
 | put content on a sheet | any creation tool with `space: "<layout name>"` |
 | read a sheet | get_entities / find_text / get_entity_count with `space` |
+| set up sheets | duplicate_layout, set_page_setup, list_viewports, set_viewport, set_viewport_layers |
+| existing / proposed sheets from one model | save_layer_state, restore_layer_state, set_viewport_layers |
+| hatch an area by pointing at it | create_hatch with seedX/seedY; create_boundary for the outline |
+| floor areas (GIA) | measure_areas, label_areas (with `schedule` for a table) |
+| resize an opening or room | stretch_entities |
+| hatch behind linework, text over a wipeout | set_draw_order, create_wipeout |
+| mark a revision | create_revcloud |
+| doors and windows from a dynamic library | get_dynamic_block_properties, set_dynamic_block_properties, insert_block with `dynamicProperties` |
+| OS extract, aerial, survey PDF under a plan | attach_image, attach_pdf_underlay, clip_underlay, set_image_display |
+| red-line boundary width, rounded corners | edit_polyline (setWidth, filletAll) |
+| text and dimension standards | set_text_style, set_dimension_style, match_properties |
+| title-block QA across sheets | find_text with `includeAttributes: true` and `space: "all"` |
+| something went wrong | rollback_checkpoint / undo, then read back |
 | model 3D | create_3d_box, create_extrusion, boolean_union |
 | edit geometry | move_entities, offset_entity, fillet_entities, trim_entity (with a removal point) |
 | dimension and annotate | create_dimension_linear, create_leader, create_table |
@@ -114,6 +137,23 @@ edits.
 | see the result | zoom_extents / zoom_object, capture_screenshot |
 
 ## Workflows
+
+### Sheet set from a template
+1. `duplicate_layout` the template sheet per drawing; `rename_layout` to
+   the sheet number.
+2. `list_viewports` on the new sheet, then `set_viewport` with the model
+   window (`viewCenterX/Y`) and `scale: "1:100"`, `locked: true` last.
+3. `set_viewport_layers` to freeze what that sheet must not show; save
+   the combination with `save_layer_state` if it will be reused.
+4. Title-block text: `find_text` / `replace_text` with
+   `includeAttributes: true` and `space` set to the sheet.
+5. `get_page_setup` once; `set_page_setup` only if the template is wrong.
+
+### Area takeoff
+`measure_areas` with `points` inside each room (islands are subtracted)
+or `handles` of closed boundaries; `label_areas` with `names` and a
+`schedule` when the figures must appear on the drawing. Areas come back
+in m² on a millimetre or metre drawing - do not convert again.
 
 ### Folder-batch maintenance (the headline Pro workflow)
 1. Confirm folder, file pattern, and recursion with the user.
