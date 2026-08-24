@@ -12,7 +12,7 @@ read-only inspection (28 tools); Pro unlocks creation, modification,
 annotation, plotting, and the folder-batch pack. A **read-only session**
 (user checkbox or administrator policy) withholds the same mutating tools
 on a Pro seat. Supported hosts: AutoCAD 2022–2027. Written for connector
-v2.0.1.
+v2.1.0.
 
 ## Session start
 
@@ -20,8 +20,8 @@ v2.0.1.
    counts. It doubles as the connection check; do not spend a separate
    `ping`. If it fails, AutoCAD is not running or the connection is off -
    use `ping` then to diagnose, and the user can check the
-   `MCPCONNECTOR_STATUS` command or the AUTOM8LABS ribbon. Neither tool
-   reports a connector version yet; the user reads it from the dialog.
+   `MCPCONNECTOR_STATUS` command or the AUTOM8LABS ribbon. Both tools
+   report `connectorVersion`, `hostVersion` and `readOnlySession`.
 2. **Units before geometry.** Coordinates are in current drawing units per
    INSUNITS, not a fixed unit. On survey or unitless DWGs run
    `detect_units` before creating or measuring anything.
@@ -29,13 +29,16 @@ v2.0.1.
 ## Token discipline
 
 - **Page, don't dump.** `get_entities` defaults to limit 500. Page with
-  `offset` until `hasMore` is false. `matched` is a running count of what
-  has been scanned so far, not the total - use `get_entity_count` for a
-  total.
+  `offset` until `hasMore` is false; `matched` is the total the filters
+  select, so one call tells you how big the job is.
 - **Target, don't scan.** `select_by_filter`, `find_text`,
   `count_text_patterns`, and `get_entity_by_handle` beat unfiltered lists.
-  For a spatial window use `select_by_filter` with `withinExtents`; the
-  `boundingBox` filter on `get_entities` is not applied in v2.0.1.
+  For a spatial window use `boundingBox` on `get_entities` (crossing) or
+  `select_by_filter` with `withinExtents` and `mode: "window"` for
+  entirely-inside.
+- **Say which space.** Reads default to model space. Sheet content
+  (title blocks, notes, viewports) needs `space` set to the layout name,
+  `current`, or `all`. Every entity comes back with a `space` field.
 - **Reports return file paths, not payloads.** The batch reporting tools
   write .xlsx/.csv and return a path - relay the path, do not ask for the
   content inline.
@@ -54,6 +57,10 @@ edits.
 - `trim_entity` returns `newHandles`: the surviving piece gets a **new
   handle** and the old one is gone. Update anything that held it.
 - `explode_entity` and boolean operations also replace their inputs.
+- `create_leader` returns one `handle` for the MLeader.
+- **A failed call is `success: false` with a top-level `error`.** The
+  payload stays under `result`. Never treat `success: true` as done
+  without reading the counts it reports.
 
 ## Safety
 
@@ -90,6 +97,8 @@ edits.
 | find entities | get_entities (filtered), select_by_filter |
 | find or fix text | find_text, replace_text, count_text_patterns |
 | draw 2D | create_line, create_polyline, create_circle, create_hatch |
+| put content on a sheet | any creation tool with `space: "<layout name>"` |
+| read a sheet | get_entities / find_text / get_entity_count with `space` |
 | model 3D | create_3d_box, create_extrusion, boolean_union |
 | edit geometry | move_entities, offset_entity, fillet_entities, trim_entity (with a removal point) |
 | dimension and annotate | create_dimension_linear, create_leader, create_table |
@@ -145,13 +154,12 @@ before reading it. `plot_to_pdf` also returns `fileWritten` and
 3. **Locked layers are skipped, not failed** - batch tools count and report
    them. Layer 0, Defpoints, and xref-dependent layers (`|` in the name)
    cannot be renamed or merged.
-4. **Reads are model space only.** `get_entities`, `get_entity_count`,
-   `find_text`, `count_text_patterns`, and `replace_text` do not see paper
-   space, so a layout reads as empty and title-block text is unfindable
-   through them. `select_by_filter` searches every space and returns
-   handles you can pass to `get_entity_properties`; `title_block_update`
-   and `block_attribute_extract` read layouts directly. Creation tools
-   write to model space.
+4. **Space is explicit.** Reads and creation tools default to model
+   space; pass `space` (a layout name, `current`, or `all` for reads) to
+   work on a sheet. `select_by_filter` searches every space by default
+   and labels each hit. Copies, offsets, arrays, explodes and trims stay
+   in the space their source occupies. Unknown layout names are refused
+   with the list of layouts that exist - use that list, do not guess.
 5. **Modification tools work from any layout.** fillet, chamfer, break,
    lengthen, join, align, and convert_to_polyline switch to the space
    their targets are in and restore the layout afterwards - no need to
@@ -161,14 +169,16 @@ before reading it. `plot_to_pdf` also returns `fileWritten` and
    `find_text` and `replace_text` match either form and report
    `encoding` per hit; replacements are written in the form the entity
    already used. Search in the user's own language - no escaping needed.
-7. **Hatches.** `create_hatch` takes exactly one closed boundary handle
-   per call and predefined patterns only (ANSI31, SOLID, AR-CONC …). For
-   a face with openings, hatch each region separately. A hatch handle in
-   `get_entity_properties` can fail the call - query hatches on their
-   own.
-8. **Annotation sizes.** `create_leader` uses the current text size, not
-   a passed height. MText `height` reads back as 0; use `get_bounding_box`
-   to match an existing note's size, or set the size on `create_mtext`.
+7. **Hatches.** Pass several `boundaryHandles` for a face with openings:
+   the largest is the outer loop, the rest are islands. `boundaryPoints`
+   hatches a polygon with no boundary entity. Patterns: predefined, a
+   .pat on the support path, or one an existing hatch already uses -
+   read it with `get_entity_properties` and pass the name. An open
+   boundary or unknown pattern is refused by name.
+8. **Annotation sizes.** Pass `textHeight` and `arrowSize` to
+   `create_leader`, and `height` to `create_mtext`, in drawing units at
+   the sheet scale (250 in a millimetre model plotted 1:100 reads as
+   2.5 mm). MText `height` reads back as the character height.
 9. **Batches run long** (up to 30 minutes server-side). Warn the user; do
    not re-issue a call because it feels slow.
 10. **After a licence change, reconnect the MCP client** - the edition is
