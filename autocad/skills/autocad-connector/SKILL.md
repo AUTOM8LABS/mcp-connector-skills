@@ -69,9 +69,9 @@ edits.
   changes; `rollback_checkpoint` reverts everything since it in one
   step, `undo` reverts N tool calls (each call is one step), `redo` only
   works as the very next call after `undo` - even a read in between
-  clears it. All are queued in AutoCAD (`requested:
-  true`): confirm with `get_entity_count` or a read before telling the
-  user. Folder tools work on files on
+  clears it. They are queued in AutoCAD (`requested: true`) and the
+  connector holds the next call until they have run, so a read straight
+  after shows the result - still read back before telling the user. Folder tools work on files on
   disk and sit outside this undo - their safety net is `dryRun` and
   `outputFolder`.
 - **Batch tools default to `dryRun: true`.** Keep that default on the first
