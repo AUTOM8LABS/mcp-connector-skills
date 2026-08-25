@@ -6,8 +6,8 @@ description: Operating doctrine for driving Autodesk 3ds Max through the MCP Con
 # 3ds Max Connector - operating doctrine
 
 You drive a live 3ds Max session through the AUTOM8LABS MCP tools. Every call
-runs against the real open scene on the Max main thread. There are 63 tools:
-26 Free (query, transforms, screenshots) and 37 Pro (creation beyond
+runs against the real open scene on the Max main thread. There are 101 tools:
+23 Free (query, transforms, screenshots) and 78 Pro (creation beyond
 primitives, modifiers, materials, layers, animation, rendering, file I/O,
 scripting). If a tool refuses with a licence message, relay it
 honestly - do not improvise with tools that cannot do the job.

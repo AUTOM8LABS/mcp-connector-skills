@@ -7,9 +7,9 @@ description: Operating doctrine for driving Autodesk Navisworks through the MCP 
 
 You drive a live Navisworks Manage session through the AUTOM8LABS MCP tools.
 Tools act on the open, aggregated document. Free tier is read-only inspection
-plus view navigation (26 tools); Pro unlocks selection writes, sets,
+plus view navigation. 89 tools: 29 free, 60 Pro (selection writes, sets,
 viewpoints, clash authoring and review, appearance overrides, exports, and
-publishing. Supported hosts: Navisworks 2024–2027.
+publishing). Supported hosts: Navisworks 2022–2027.
 
 ## Session start
 
@@ -72,7 +72,7 @@ not a query language - mirror what the Properties panel shows.
 | see what is loaded | get_model_info, list_models, get_units |
 | find elements | find_items; get_item_properties to inspect |
 | browse the hierarchy | get_selection_tree (shallow, then deepen) |
-| work with the UI selection | get_current_selection, set_current_selection (Pro) |
+| work with the UI selection | get_current_selection (free); set_current_selection (Pro) |
 | review clashes | list_clash_tests, get_clash_test_summary, get_clash_results |
 | author clash tests | create_search_set ×2, create_clash_test, run_clash_test (Pro) |
 | walk a clash visually | focus_on_clash (free), get_clash_result_image (Pro) |
