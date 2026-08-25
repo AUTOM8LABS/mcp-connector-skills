@@ -87,7 +87,8 @@ edits.
 - Confirm before: `erase_entities`, `explode_entity` (replaces the
   original), boolean ops (consume input solids), `trim_entity` (erases the
   removed piece), `replace_text`, `detach_xref`, `merge_layers`,
-  `audit_drawing` with fix, `save_drawing` (Save As can overwrite and
+  `audit_drawing` with fix, `delete_layout` (takes the sheet and
+  everything on it), `save_drawing` (Save As can overwrite and
   downsave), and any folder-batch write.
 - `execute_command` is Pro, hidden unless the machine opts in with
   `MCP_CONNECTOR_ENABLE_COMMAND_EXEC=1`, and hard-blocks code-loading and
@@ -110,13 +111,15 @@ edits.
 | put content on a sheet | any creation tool with `space: "<layout name>"` |
 | read a sheet | get_entities / find_text / get_entity_count with `space` |
 | set up sheets | duplicate_layout, set_page_setup, list_viewports, set_viewport, set_viewport_layers |
-| existing / proposed sheets from one model | save_layer_state, restore_layer_state, set_viewport_layers |
+| existing / proposed sheets from one model | list_layer_states, save_layer_state, restore_layer_state, set_viewport_layers |
 | hatch an area by pointing at it | create_hatch with seedX/seedY; create_boundary for the outline |
 | floor areas (GIA) | measure_areas, label_areas (with `schedule` for a table) |
 | resize an opening or room | stretch_entities |
 | hatch behind linework, text over a wipeout | set_draw_order, create_wipeout |
 | mark a revision | create_revcloud |
 | doors and windows from a dynamic library | get_dynamic_block_properties, set_dynamic_block_properties, insert_block with `dynamicProperties` |
+| swap every instance of one block for another | replace_block - keeps position, rotation and attributes by tag. Do not erase and re-insert |
+| rename a block without breaking its references | rename_block |
 | OS extract, aerial, survey PDF under a plan | attach_image, attach_pdf_underlay, clip_underlay, set_image_display |
 | red-line boundary width, rounded corners | edit_polyline (setWidth, filletAll) |
 | text and dimension standards | set_text_style, set_dimension_style, match_properties |
@@ -134,6 +137,7 @@ edits.
 | update title blocks across a project | title_block_update |
 | audit a project | drawing_health_report, xref_report, find_proxy_objects |
 | clean a folder of DWGs | batch_process_folder (purge/audit/downsave), purge_zero_length |
+| return to the same view later | save_view, restore_view |
 | see the result | zoom_extents / zoom_object, capture_screenshot |
 
 ## Workflows

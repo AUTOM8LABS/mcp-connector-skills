@@ -92,7 +92,7 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
 3. **Re-frame before every screenshot** - a stale viewport angle makes a
    correct edit look wrong.
 4. **An empty result is a valid answer**, not an error.
-5. **Supported host: 3ds Max 2026.** If the connector does not
+5. **Supported hosts: 3ds Max 2024-2027.** If the connector does not
    respond, Max is not running or the plugin has not loaded; the user can
    verify via the AUTOM8LABS menu (MCP Connector Status).
 6. Licence-gated tools return a purchase message on the Free tier - relay
