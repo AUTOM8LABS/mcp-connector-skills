@@ -51,10 +51,10 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
   the modifier stack - parametric history is gone).
 - **Destructive but undoable:** `delete_objects`, `delete_animation` (strips
   all keys), `delete_empty_layers`, `ungroup_objects`.
-- `execute_maxscript` is Pro **and** requires the machine opt-in env var
-  `MCP_CONNECTOR_ENABLE_SCRIPT_EXEC=1`. If it refuses, that is deliberate
-  fail-closed behaviour - tell the user how to opt in; never try to smuggle
-  script effects through other tools.
+- `execute_maxscript` is Pro (the former machine opt-in was removed in August
+  2026). Each call is one undo entry and reports the objects it created; if it
+  refuses on a Free licence, relay that honestly rather than smuggling script
+  effects through other tools.
 
 ## Fast paths (intent to first tool)
 
@@ -67,6 +67,14 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
 | move / rotate / scale / rename | move_objects, rotate_objects, scale_objects, rename_objects |
 | organise the scene | list_layers, create_layer, move_to_layer, group_objects |
 | shape geometry non-destructively | add_modifier, set_modifier_property |
+| block a building from a plan or photo | set_units, create_reference_image, create_primitive, create_spline, extrude_spline |
+| joinery, fixtures, frames, rails | create_primitive + execute_maxscript (Edit Poly verbs), sweep_profile, lathe_spline, add_modifier shell |
+| cut one solid with another | boolean_objects (audit_mesh the operands first) |
+| clean an imported or finished mesh | audit_mesh, fix_normals, weld_vertices, smooth_mesh, optimize_mesh, chamfer_edges |
+| Reset XForm and pivots before attaching | prepare_for_mapping (clear_mapping false, collapse false), set_pivot, attach_objects |
+| map for texturing | prepare_for_mapping, add_uvw_map, set_texel_density, audit_uv, auto_unwrap |
+| mirror, repeat, distribute | add_modifier symmetry, mirror_objects, clone_objects, array_objects, distribute_along_spline |
+| measure and check dimensions | measure_objects, create_viewport_screenshot |
 | look development | create_physical_material, assign_material, apply_bitmap_texture, add_uvw_map |
 | animate | get_animation_info, set_time_range, animate_transform |
 | render | get_render_settings, set_render_quality, set_output_exr, render_frame |
@@ -88,6 +96,33 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
 4. Verify: re-read the changed objects (`get_object_properties`) or take a
    framed screenshot. Numbers prove transforms; screenshots prove looks.
 5. Report what changed with counts and names.
+
+## Modelling
+
+**Read `references/modelling.md` before any task that builds or repairs geometry** -
+blocking from a plan, joinery and fixtures, frames from profiles, cleaning an imported
+mesh, mapping before texturing. It holds the operator playbook: deciding the approach
+(primitives + Edit Poly, splines to solids, Booleans, deformers), the modifier stack
+discipline (order, naming, collapse timing, Reset XForm before attach), Booleans done
+safely, splines to solids, mesh health, mapping, symmetry and instancing, the class
+and property names verified on Max 2027, proven recipes with values, a checklist and
+the gotchas. The essentials:
+
+- Set units first (`set_units`), place references (`create_reference_image`), then
+  block walls as boxes and grow them with Edit Poly verbs through `execute_maxscript`;
+  round every value and keep one wall thickness for the project.
+- Derive, do not draw: detach as clone, copy, instance. Boxes and detached faces over
+  Boolean cuts. Coplanar faces are forbidden (2-4 mm offsets, 0.2 cm door gaps).
+- Finish before attach; material IDs before duplication; Reset XForm before attach and
+  after any mirror, rotate or scale; pivot at base or hinge.
+- The finishing recipe: Chamfer 0.2 cm, 1 segment, minimum angle 55, smoothing
+  threshold 180, collapse, crease the chamfered edges to 1. Smoothing over
+  subdivisions.
+- `add_modifier` knows 14 friendly names; every other modifier goes through
+  `execute_maxscript` with the class names in the playbook (Chamfer, SliceModifier,
+  symmetry planes, BooleanMod, Arraymodifier, RetopologyComponent, MeshCleaner ...).
+- Verify with numbers (`measure_objects`, `audit_mesh`, `audit_uv`) and screenshots
+  from two angles before calling a model done.
 
 ## Look development and rendering
 
