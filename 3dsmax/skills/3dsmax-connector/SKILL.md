@@ -6,10 +6,10 @@ description: Operating doctrine for driving Autodesk 3ds Max through the MCP Con
 # 3ds Max Connector - operating doctrine
 
 You drive a live 3ds Max session through the AUTOM8LABS MCP tools. Every call
-runs against the real open scene on the Max main thread. There are 101 tools:
-23 Free (query, transforms, screenshots) and 78 Pro (creation beyond
-primitives, modifiers, materials, layers, animation, rendering, file I/O,
-scripting). If a tool refuses with a licence message, relay it
+runs against the real open scene on the Max main thread. There are 125 tools:
+23 Free (query, transforms, screenshots) and 102 Pro (creation beyond
+primitives, modifiers, materials, layers, animation, rendering, look
+development, Cosmos assets, file I/O, session rollback, scripting). If a tool refuses with a licence message, relay it
 honestly - do not improvise with tools that cannot do the job.
 
 ## Session start
@@ -69,7 +69,14 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
 | shape geometry non-destructively | add_modifier, set_modifier_property |
 | look development | create_physical_material, assign_material, apply_bitmap_texture, add_uvw_map |
 | animate | get_animation_info, set_time_range, animate_transform |
-| render | get_render_settings, set_render_settings, render_frame |
+| render | get_render_settings, set_render_quality, set_output_exr, render_frame |
+| photographic exterior or interior | create_physical_camera, setup_hdri_environment, set_camera_exposure, random_shots, reframe_camera |
+| clay / white-card study | setup_clay_render |
+| V-Ray materials | create_vray_material, apply_vray_texture, apply_dirt, randomize_materials |
+| trees, people, grass, sky from the library | list_cosmos_assets, place_cosmos_asset, create_tree_belt, create_grass |
+| break the clone look | randomize_transforms, randomize_materials |
+| frames, rails, columns from splines | sweep_profile, sweep_spline |
+| undo what the AI did | undo_last, redo_last, restore_session_start |
 | hand the model to another app | convert_scene_to_format |
 | see the result | set_viewport, zoom_extents, create_viewport_screenshot |
 
@@ -116,7 +123,7 @@ white dome light visible as backdrop + invisible plane key. Keep the dome/key ra
 around 1.0 : 18 (V-Ray, key normalised, 25 m plane) so the form does not flatten
 into the background.
 
-**Photographic exterior (V-Ray recipe, proven on Max 2027 / V-Ray 7)**
+**Photographic exterior (V-Ray recipe, proven on Max 2027 / V-Ray 7; each step is one typed tool)**
 1. Sky and sun from one HDR photograph: `VRayHDRI` (spherical mapping, `mapType 2`)
    in a dome `VRayLight` (type 1) and the same map as the environment background.
    Rotate the map to put the sun where the facade wants it. `VRaySun` + `VRaySky` is
@@ -142,10 +149,10 @@ into the background.
    a lawn is fur or scattered clumps, not a flat green; people at 1.8 m give scale.
 
 **Chaos Cosmos assets (trees, people, materials, HDRIs)**
-- Import with `chaosCosmosAssetImportByName "Maple Tree 001"` (the display name,
-  with spaces). The importer downloads the texture package, builds the Multi
-  material and scales the proxy. Placing a `.vrmesh` by file path yourself gives a
-  black, untextured model because textures only arrive with the importer.
+- `place_cosmos_asset` by display name (`Maple Tree 001`, see `list_cosmos_assets`)
+  or catalogue id goes through the Cosmos importer, which brings textures, the
+  multi-material and scale. Placing a `.vrmesh` by file path yourself gives a black,
+  untextured model because textures only arrive with the importer.
 - Imported materials land in the scene material list; find them by name and assign.
 - Never size a `VRayProxy` from its bounding box - it lies; judge scale by render.
 - `showCosmosBrowser()` opens the library for the user when an asset is not yet

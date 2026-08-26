@@ -20,10 +20,13 @@ Ask, or infer from the request, three things:
 Then check `get_render_settings` for the active renderer and decide the path:
 
 - **Arnold** (Max default): everything below is reachable with typed tools.
-- **V-Ray**: the photographic recipe needs V-Ray classes (physical camera, HDRI
-  dome, VRayMtl, Cosmos). Today that is `execute_maxscript` (Pro + machine opt-in).
-  If script execution refuses, say so and deliver the Arnold path; never claim V-Ray
-  features you cannot reach.
+- **V-Ray**: the photographic recipe is typed (connector 1.3.0): `set_renderer`,
+  `create_physical_camera`, `set_camera_exposure`, `setup_hdri_environment`,
+  `set_render_quality`, `set_output_exr`, `setup_clay_render`, `create_vray_material`,
+  `apply_vray_texture`, `apply_dirt`, `randomize_materials`, `place_cosmos_asset`,
+  `create_grass`, `create_tree_belt`, `sweep_profile`, `apply_displacement`. Each
+  reports `unapplied` for anything the host refused. If V-Ray classes are absent the
+  tools say so; deliver the Arnold path and never claim V-Ray features you cannot reach.
 
 ## 1. Prepare the model for the camera
 
@@ -189,6 +192,22 @@ material; `apply_bitmap_texture` throws on non-Physical materials.
   branches with a noise controller, cycle 100-150 frames, first and last frames
   matching.
 - **People** at 1.8 m, few, placed where a photographer would put them for scale.
+
+## 6b. Tool sequence for a photographic still (typed, 1.3.0)
+
+1. `snapshot_session` (or rely on the automatic one) so everything can be undone.
+2. `set_renderer vray` if needed; `set_render_quality preview`.
+3. `place_cosmos_asset` for trees, people, ground materials; `create_tree_belt` for the
+   horizon; `create_grass mode fur` on the lawn; `randomize_transforms` on repeated
+   elements; `randomize_materials` across clones.
+4. `create_vray_material` with `round_edges_radius` for frames and steel; `apply_dirt`
+   on concrete, stone and paint; `apply_vray_texture` for photographic surfaces.
+5. `setup_hdri_environment` (a Cosmos sky via `place_cosmos_asset` returns the file
+   path) rotated so the sun rakes the facade.
+6. `random_shots` (viewport mode) on the subject; pick; `reframe_camera` to the output
+   format; `create_physical_camera` at that position or `set_camera_exposure` on it.
+7. `render_frame` at quarter size to judge; `set_render_quality final`;
+   `set_output_exr` when grading follows; render.
 
 ## 7. Final-frame checklist
 
