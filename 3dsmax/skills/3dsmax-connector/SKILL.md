@@ -84,6 +84,12 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
 
 ## Look development and rendering
 
+**Read `references/rendering.md` before any task whose output is a picture** - clay
+study, client render, turntable, batch of cameras. It holds the full playbook:
+deciding the job, preparing the model for the camera, materials, lighting, camera
+and composition, V-Ray 7 render settings and output, context (Cosmos, scatter,
+lawn, horizon), the final-frame checklist and the live gotchas. The essentials:
+
 The connector's typed render surface is renderer-agnostic (`get_render_settings`,
 `set_render_settings`, `render_frame`, `batch_render_cameras`, `setup_sun`,
 `create_light`, `create_camera`, `frame_camera_to_objects`, the Physical Material
