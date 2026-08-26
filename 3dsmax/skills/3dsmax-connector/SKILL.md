@@ -82,6 +82,76 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
    framed screenshot. Numbers prove transforms; screenshots prove looks.
 5. Report what changed with counts and names.
 
+## Look development and rendering
+
+The connector's typed render surface is renderer-agnostic (`get_render_settings`,
+`set_render_settings`, `render_frame`, `batch_render_cameras`, `setup_sun`,
+`create_light`, `create_camera`, `frame_camera_to_objects`, the Physical Material
+tools). `get_render_settings` tells you the active renderer. Use these rules:
+
+**Choose the path by renderer and licence**
+- Arnold (the Max default): everything below is reachable with typed tools.
+  `setup_sun` creates the Sun Positioner, the Physical Sun and Sky environment and
+  the exposure control together, so daylight renders come out exposed.
+- V-Ray present: the good results need V-Ray classes (physical camera, HDRI dome,
+  VRayMtl, Cosmos import). Those are `execute_maxscript` today, which is Pro and
+  needs the machine opt-in. If script execution refuses, say so and render with the
+  Arnold path; do not pretend V-Ray features are available.
+- Never create a Physical Material for an object that already carries a V-Ray or
+  Multi material: `apply_bitmap_texture` throws on non-Physical materials and
+  `get_material_properties` returns only name and class for them.
+
+**Clay / white-card study (any renderer)**
+One white material on everything, no textures, a soft dome as the only light, no
+sun: the shading is occlusion alone. Arnold: white Physical Material + skydome
+light + an invisible plane light for a soft ground shadow. V-Ray: global override
+material (VRayMtl with VRayDirt in diffuse: occluded grey, unoccluded white) +
+white dome light visible as backdrop + invisible plane key. Keep the dome/key ratio
+around 1.0 : 18 (V-Ray, key normalised, 25 m plane) so the form does not flatten
+into the background.
+
+**Photographic exterior (V-Ray recipe, proven on Max 2027 / V-Ray 7)**
+1. Sky and sun from one HDR photograph: `VRayHDRI` (spherical mapping, `mapType 2`)
+   in a dome `VRayLight` (type 1) and the same map as the environment background.
+   Rotate the map to put the sun where the facade wants it. `VRaySun` + `VRaySky` is
+   the alternative; the sun must have a target or it points below the horizon.
+2. Exposure through a `VRayPhysicalCamera`: f/8, 1/200-1/320, ISO 100, 24-35 mm,
+   slight vignetting. The scene exposure control does not act on a plain camera and
+   physical sun/sky is ~13 stops brighter than a dome, so without the physical camera
+   the frame is blown or black.
+3. GI: Brute Force + Light Cache (the V-Ray 7 default; the Irradiance Map is
+   deprecated). Colour mapping: render linear (Reinhard burn 1.0, gamma 2.2, "colour
+   mapping only" mode, sub-pixel mapping and clamp off) and tone-map in the VFB
+   (Filmic/ACES) or via the OCIO colour management, so the EXR keeps its range. If
+   the VFB cannot be driven, Reinhard burn 0.5-0.6 in the render is the fallback.
+   Progressive sampler, noise threshold 0.008-0.01, denoiser render element. Max
+   render time is the test-vs-final lever, not quality settings.
+4. Every material gets some reflection at the right glossiness; nothing is fully
+   matte. Off-white (220) never 255. Round edges via `VRayEdgesTex` in the bump slot
+   (radius 3-5 mm on frames, 10-20 mm on concrete). Glass: white reflection + white
+   refraction + IOR 1.52-1.56 + Fresnel, tint in fog, reflect on back side on.
+5. Dirt and wear are the detail: `VRayDirt` in crevices, wear on exterior edges,
+   bias along Z for streaks. Randomise materials across clones (4-5 variants).
+6. Context sells the shot: a belt of instanced trees at 50-75 m hides the horizon;
+   a lawn is fur or scattered clumps, not a flat green; people at 1.8 m give scale.
+
+**Chaos Cosmos assets (trees, people, materials, HDRIs)**
+- Import with `chaosCosmosAssetImportByName "Maple Tree 001"` (the display name,
+  with spaces). The importer downloads the texture package, builds the Multi
+  material and scales the proxy. Placing a `.vrmesh` by file path yourself gives a
+  black, untextured model because textures only arrive with the importer.
+- Imported materials land in the scene material list; find them by name and assign.
+- Never size a `VRayProxy` from its bounding box - it lies; judge scale by render.
+- `showCosmosBrowser()` opens the library for the user when an asset is not yet
+  downloaded; only downloaded assets can be imported by name.
+
+**Composition, before the final frame**
+Eye level (1.6-1.8 m) and 24-35 mm for exteriors; verticals kept vertical; a
+foreground element for depth; the sun raking across the main facade rather than
+flat behind the camera. Frame like a photographer, not like an elevation.
+
+Grounding for this section: AUTOM8LABS field sessions (August 2026).
+
 ## Gotchas
 
 1. **Only Physical Material can be created.** Texture slots are limited to
@@ -95,7 +165,9 @@ Confirm before running, and say clearly which effects Ctrl-Z cannot recover:
 5. **Supported hosts: 3ds Max 2024-2027.** If the connector does not
    respond, Max is not running or the plugin has not loaded; the user can
    verify via the AUTOM8LABS menu (MCP Connector Status).
-6. Licence-gated tools return a purchase message on the Free tier - relay
+6. **VRayHDRI `mapType` 1 is cubic, 2 is spherical** - a half-grey sky means
+   the wrong projection. **A scripted `VRaySun` needs an explicit target node.**
+7. Licence-gated tools return a purchase message on the Free tier - relay
    it honestly instead of improvising with free tools that cannot do the
    job.
 
