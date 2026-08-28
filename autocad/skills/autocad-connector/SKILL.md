@@ -12,7 +12,7 @@ read-only inspection (33 tools); Pro unlocks creation, modification,
 annotation, plotting, and the folder-batch pack. A **read-only session**
 (user checkbox or administrator policy) withholds the same mutating tools
 on a Pro seat. Supported hosts: AutoCAD 2022–2027. Written for connector
-v2.1.3 (v2.1.2 behaviour included).
+v2.1.4.
 
 ## Session start
 
@@ -22,6 +22,11 @@ v2.1.3 (v2.1.2 behaviour included).
    use `ping` then to diagnose, and the user can check the
    `MCPCONNECTOR_STATUS` command or the AUTOM8LABS ribbon. Both tools
    report `connectorVersion`, `hostVersion` and `readOnlySession`.
+   `ping` also returns the edition, how many tools are served, and a
+   `capabilities` matrix - check that rather than guessing from a version
+   number when you need to know whether a feature exists on this build.
+   A tool missing because the seat is unlicensed looks identical to one
+   this version never had; `capabilities` tells them apart.
 2. **Units before geometry.** Coordinates are in current drawing units per
    INSUNITS, not a fixed unit. On survey or unitless DWGs run
    `detect_units` before creating or measuring anything.
@@ -31,6 +36,11 @@ v2.1.3 (v2.1.2 behaviour included).
 - **Page, don't dump.** `get_entities` defaults to limit 500. Page with
   `offset` until `hasMore` is false; `matched` is the total the filters
   select, so one call tells you how big the job is.
+- **For a bulk geometry read, use `format: "compact"` and one big limit.**
+  It returns `columns` + `rows` with geometry as flat number arrays and a
+  `geometryFormat` legend - roughly half the bytes of objects-with-geometry,
+  and one call instead of nine. A whole 13,000-entity model comes back in
+  about a second. Page only when you actually need to.
 - **Target, don't scan.** `select_by_filter`, `find_text`,
   `count_text_patterns`, and `get_entity_by_handle` beat unfiltered lists.
   For a spatial window use `boundingBox` on `get_entities` (crossing) or
@@ -120,6 +130,13 @@ edits.
 | existing / proposed sheets from one model | list_layer_states, save_layer_state, restore_layer_state, set_viewport_layers |
 | hatch an area by pointing at it | create_hatch with seedX/seedY; create_boundary for the outline |
 | floor areas (GIA) | measure_areas, label_areas (with `schedule` for a table) |
+| centreline boundary to internal face (GIA) | create_boundary with `inset`, or offset_entity with `direction: "inward"` |
+| annotative text, dims and leaders | set_annotative (with `scales`), list_annotation_scales |
+| a new text or dimension style | create_text_style, create_dimension_style |
+| remember a set of entities by name | save_selection_set, recall_selection_set, list_selection_sets |
+| a drawing register from title blocks | export_drawing_register |
+| stamp a revision on sheets | add_revision_to_layouts, then update_drawing_register |
+| check a clip actually landed | get_clip_boundary |
 | resize an opening or room | stretch_entities |
 | hatch behind linework, text over a wipeout | set_draw_order, create_wipeout |
 | mark a revision | create_revcloud |
@@ -169,6 +186,43 @@ beside `area`, and the top-level `note`. A furniture block inside a room
 is an island, so for GIA pass `outerLoopOnly: true` and use the outer
 figure. Areas come back in m² on a millimetre or metre drawing - do not
 convert again.
+
+### Area takeoff to the internal face (GIA)
+The traced boundary follows whatever it was drawn along, usually wall
+centrelines; GIA is measured to the internal face. `create_boundary` with
+`inset` (half the wall thickness) does both in one call and reports the
+traced area and the inset area, leaving the inset loop. On a loop you
+already have, `offset_entity` with `direction: "inward"` does the same -
+never a signed distance, because which side that lands on depends on how
+the loop was drawn. Then `measure_areas` with `outerLoopOnly` for the
+figure. An inward offset that would collapse the loop is refused, so a
+refusal means the distance is too large, not that the tool failed.
+
+### Annotative annotation
+Two things must be true or the annotation disappears: the object carries
+the annotative flag, AND it holds a scale representation for every scale it
+should show at. `set_annotative` does both - pass `scales: ["1:50","1:100"]`
+and it adds any the drawing does not have. It refuses the flag with no
+scales, because that hides the object everywhere. `list_annotation_scales`
+gives the names it accepts. Styles carry the flag too: `create_text_style`
+and `create_dimension_style` take `annotative` (set a dimension style's
+overall scale to 0 as well).
+
+### Drawing register and revisions
+1. `export_drawing_register` builds the register from title-block
+   attributes - one row per drawing + layout. Fields are matched to tags
+   automatically; check the `columnMapping` it reports and override with
+   `columnMapping` if it guessed wrong. Use `blockNameFilter` when the
+   sheets carry more than one attributed block, or you get a row per block.
+2. `add_revision_to_layouts` stamps revision, date and description. dryRun
+   is TRUE by default - read the before/after list first. **Read
+   `fieldsNotWritten`**: many title blocks keep the revision letter on a
+   separate revision block, so a run can legitimately write only the date.
+   Run it again with a different `blockNameFilter` for the rest.
+3. `update_drawing_register` patches the existing register in place,
+   keeping its formatting, adding an issue column headed with the date.
+   dryRun first and read the plan: `matchedBy` says whether rows were keyed
+   on drawing number or on file name, and `unmatched` names what missed.
 
 ### Folder-batch maintenance (the headline Pro workflow)
 1. Confirm folder, file pattern, and recursion with the user.
@@ -282,6 +336,22 @@ before reading it. `plot_to_pdf` also returns `fileWritten` and
 17. **Unknown block names come back with `suggestions`** (near misses one
     edit away, shared prefixes); a block that exists with no references is
     `found: true, count: 0`.
+18. **Named selection sets are stored in the drawing, not as a GROUP.**
+    They survive save and reopen and do not change how picking behaves.
+    `recall_selection_set` sets the pickfirst selection, so the next tool
+    that reads the selection acts on it; an erased member is reported in
+    `missingCount` rather than dropped.
+19. **`get_selected_geometry` reads what is selected right now.** Recall a
+    set or ask the user to select, then call it. It covers lines, arcs,
+    circles, ellipses, polylines, splines, blocks (with attributes), hatches
+    (with loop vertices), text, MText, dimensions and wipeouts.
+20. **Clips: verify with `get_clip_boundary`.** `clip_underlay` takes a
+    `boundaryHandle` to clip to a polyline you already drew. `invert` does
+    not apply to images - the response says so rather than echoing it back.
+21. **Plot a sheet set from one drawing** with `plot_to_pdf` and
+    `layoutNames` (your order) or `plotAllLayouts`. Layouts on different
+    paper sizes cannot share one PDF, so those come back as one PDF per
+    layout with a `note`.
 
 ## Response style
 
