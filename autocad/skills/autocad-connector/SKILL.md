@@ -12,7 +12,7 @@ read-only inspection (33 tools); Pro unlocks creation, modification,
 annotation, plotting, and the folder-batch pack. A **read-only session**
 (user checkbox or administrator policy) withholds the same mutating tools
 on a Pro seat. Supported hosts: AutoCAD 2022–2027. Written for connector
-v2.1.0.
+v2.1.3 (v2.1.2 behaviour included).
 
 ## Session start
 
@@ -58,6 +58,12 @@ edits.
   handle** and the old one is gone. Update anything that held it.
 - `explode_entity` and boolean operations also replace their inputs.
 - `create_leader` returns one `handle` for the MLeader.
+- `set_dynamic_block_properties` is atomic: the whole batch is validated
+  first and one bad entry writes nothing; read `applied` and `rejected`.
+  Names repeat on library blocks (three "Origin" on a door), so address a
+  repeated name by index, `"#3"`, using the `index` each property carries
+  in `get_dynamic_block_properties`. A repeated name is refused with the
+  indexes to use.
 - **A failed call is `success: false` with a top-level `error`.** The
   payload stays under `result`. Never treat `success: true` as done
   without reading the counts it reports.
@@ -131,8 +137,9 @@ edits.
 | manage layers | list_layers, create_layer, set_layer_properties, merge_layers |
 | work with blocks | list_blocks, insert_block, get_block_attributes, set_block_attribute |
 | work with xrefs | list_xrefs, attach_xref, reload_xref, repath_xrefs |
-| plot one drawing | plot_to_pdf |
+| plot one sheet, or a sheet set from one drawing | plot_to_pdf (`layoutNames` in order, or `plotAllLayouts`) |
 | plot a folder | dwg_folder_to_pdf |
+| copy content between drawings at the same coordinates | copy_to_original_coordinates (lands in the source's space; `targetSpace` to override) |
 | extract data / BOM | block_attribute_extract, layer_report_to_excel |
 | update title blocks across a project | title_block_update |
 | audit a project | drawing_health_report, xref_report, find_proxy_objects |
@@ -154,10 +161,14 @@ edits.
 5. `get_page_setup` once; `set_page_setup` only if the template is wrong.
 
 ### Area takeoff
-`measure_areas` with `points` inside each room (islands are subtracted)
-or `handles` of closed boundaries; `label_areas` with `names` and a
-`schedule` when the figures must appear on the drawing. Areas come back
-in m² on a millimetre or metre drawing - do not convert again.
+`measure_areas` with `points` inside each room or `handles` of closed
+boundaries; `label_areas` with `names` and a `schedule` when the figures
+must appear on the drawing. Point mode subtracts interior loops (islands)
+and says so: read `outerArea`, `netArea`, `islandCount` and the islands
+beside `area`, and the top-level `note`. A furniture block inside a room
+is an island, so for GIA pass `outerLoopOnly: true` and use the outer
+figure. Areas come back in m² on a millimetre or metre drawing - do not
+convert again.
 
 ### Folder-batch maintenance (the headline Pro workflow)
 1. Confirm folder, file pattern, and recursion with the user.
@@ -181,6 +192,21 @@ get_drawing_info counts before/after.
 ### Title block / revision update
 title_block_update scans **paper space per layout** - title blocks are not
 in model space. dryRun first, then live.
+
+### Plot and read back (sheet verification)
+`plot_to_pdf` plots at the layout's SAVED page setup: plot area Layout,
+saved scale (1:1 for a sheet), saved paper size. That is the true 1:1 plot,
+so do not pass `plotArea` or `scale` to "make sure"; pass them only to
+override the setup for one plot (`scale: "fit"`, `plotArea: "extents"` for
+a model-space check). `extents` is computed from the entities as they are
+now, so a stray entity that has since been erased does not shrink the plot.
+Overrides come back in `applied`; each page reports `plotType`, `scale` and
+`paperSize`. Several layouts go into one PDF with `layoutNames` (your
+order) or `plotAllLayouts` (tab order); layouts on different paper sizes
+are written as one PDF per layout with a `note`. The user's tab is
+restored afterwards. Read the PDF back with `attach_pdf_underlay` or an
+external reader when the sheet must be proven, and check `fileWritten`
+and `sizeBytes` before reporting.
 
 ### Seeing the drawing
 `capture_screenshot` returns with the PNG on disk (`fileWritten`,
@@ -216,9 +242,12 @@ before reading it. `plot_to_pdf` also returns `fileWritten` and
 7. **Hatches.** Pass several `boundaryHandles` for a face with openings:
    the largest is the outer loop, the rest are islands. `boundaryPoints`
    hatches a polygon with no boundary entity. Patterns: predefined, a
-   .pat on the support path, or one an existing hatch already uses -
-   read it with `get_entity_properties` and pass the name. An open
-   boundary or unknown pattern is refused by name.
+   .pat on the support path, or one that exists only inside hatches in
+   the drawing (a Revit export's FP_* patterns) - the definition is copied
+   from the resident hatch and `patternSource` says `drawing:<handle>`.
+   `list_hatch_patterns` lists what resolves, with `hatchCount` and an
+   `exampleHandle` per resident pattern. An open boundary or unknown
+   pattern is refused by name.
 8. **Annotation sizes.** Pass `textHeight` and `arrowSize` to
    `create_leader`, and `height` to `create_mtext`, in drawing units at
    the sheet scale (250 in a millimetre model plotted 1:100 reads as
@@ -233,6 +262,26 @@ before reading it. `plot_to_pdf` also returns `fileWritten` and
     refuses with a licence message, the seat is unlicensed - relay it, do
     not improvise.
 12. An empty result is a valid answer, not an error.
+13. **Zoom tools read the view back.** `zoom_extents`, `zoom_window` and
+    `zoom_object` return the centre, height, width and extents AutoCAD
+    actually shows and fail if the view did not take; `zoom_object` takes
+    `handles` and lists unresolved ones in `notFound`. Trust the read-back,
+    not the request.
+14. **Transparency and the plot flag round-trip.** `create_layer`,
+    `set_layer_properties` and `change_entity_properties` write
+    `transparency` (0-90 %; -1 = ByLayer on entities); `list_layers` returns
+    `plot` and `transparency`, `get_entity_properties` returns
+    `transparency`. Verify with the read, not the success flag.
+15. **`detect_units` says what it measured.** `evidenceBasis` is `extents`
+    normally and `entitySizes` when the extents are implausible (one entity
+    parked far from the rest) - the guess then comes from the sampled
+    element sizes and the recommendation says so. `currentSetting` and
+    `heuristicGuess` are separate; read the confidence `band` before acting.
+16. **`get_entity_properties` on a viewport** returns centre, size, scale
+    and view centre, the same figures as `list_viewports`.
+17. **Unknown block names come back with `suggestions`** (near misses one
+    edit away, shared prefixes); a block that exists with no references is
+    `found: true, count: 0`.
 
 ## Response style
 
