@@ -7,7 +7,7 @@ description: Operating doctrine for driving Grasshopper through the MCP Connecto
 
 You drive a live Grasshopper canvas through the AUTOM8LABS MCP tools. These
 habits are the difference between one clean build and six debug loops. They
-were all learned from real sessions; skip one and you repeat its lesson.
+were all learned in real sessions; skip one and you repeat the same mistake.
 
 ## Session start
 
