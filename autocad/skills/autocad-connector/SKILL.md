@@ -171,6 +171,9 @@ edits.
    the sheet number.
 2. `list_viewports` on the new sheet, then `set_viewport` with the model
    window (`viewCenterX/Y`) and `scale: "1:100"`, `locked: true` last.
+   Size, scale and view centre can go in ONE call - they are applied in
+   that order, so the scale you ask for is the scale you keep. Read the
+   `viewport` in the reply, not just `applied`, if it matters.
 3. `set_viewport_layers` to freeze what that sheet must not show; save
    the combination with `save_layer_state` if it will be reused.
 4. Title-block text: `find_text` / `replace_text` with
@@ -197,6 +200,13 @@ never a signed distance, because which side that lands on depends on how
 the loop was drawn. Then `measure_areas` with `outerLoopOnly` for the
 figure. An inward offset that would collapse the loop is refused, so a
 refusal means the distance is too large, not that the tool failed.
+
+A seed point must be inside a region that is properly closed. When it is
+not, the trace comes back `success: false` naming the precondition it could
+not meet - including when AutoCAD answered with its own error dialog, which
+the connector dismisses so the session is never left waiting on a click.
+Treat that as "the point or the geometry is wrong", not as a hang: move the
+seed, or close the gap in the boundary.
 
 ### Annotative annotation
 Two things must be true or the annotation disappears: the object carries
@@ -250,12 +260,17 @@ in model space. dryRun first, then live.
 ### Plot and read back (sheet verification)
 `plot_to_pdf` plots at the layout's SAVED page setup: plot area Layout,
 saved scale (1:1 for a sheet), saved paper size. That is the true 1:1 plot,
-so do not pass `plotArea` or `scale` to "make sure"; pass them only to
-override the setup for one plot (`scale: "fit"`, `plotArea: "extents"` for
-a model-space check). `extents` is computed from the entities as they are
-now, so a stray entity that has since been erased does not shrink the plot.
-Overrides come back in `applied`; each page reports `plotType`, `scale` and
-`paperSize`. Several layouts go into one PDF with `layoutNames` (your
+so do not pass `plotArea`, `scale` or `paperSize` to "make sure"; pass them
+only to override the setup for one plot (`scale: "fit"`, `plotArea:
+"extents"` for a model-space check). `extents` is computed from the
+entities as they are now, so a stray entity that has since been erased does
+not shrink the plot. Overrides come back in `applied`; each page reports
+`plotType`, `scale`, `paperSize` and `savedPaperSize`. **Check the sheet
+before issuing anything.** `savedPaperSize` is what the layout is set up
+for, `paperSize` is what was used; when those are different SIZES the reply
+carries a `warnings` entry, because a sheet plotted on a smaller size is
+cropped rather than scaled and the PDF still looks plausible. On that
+warning, re-plot with an explicit `paperSize`. Several layouts go into one PDF with `layoutNames` (your
 order) or `plotAllLayouts` (tab order); layouts on different paper sizes
 are written as one PDF per layout with a `note`. The user's tab is
 restored afterwards. Read the PDF back with `attach_pdf_underlay` or an
