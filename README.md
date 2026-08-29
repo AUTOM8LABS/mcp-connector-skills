@@ -18,6 +18,7 @@ wastes far less of your context window and makes fewer mistakes.
 | [`dynamo-connector`](dynamo/skills/dynamo-connector/SKILL.md) | MCP Connector for Dynamo | Dynamo 3.x (Revit 2025/2026, Sandbox) |
 | [`3dsmax-connector`](3dsmax/skills/3dsmax-connector/SKILL.md) | MCP Connector for 3ds Max | 3ds Max 2022–2027 |
 | [`grasshopper-connector`](grasshopper/skills/grasshopper-connector/SKILL.md) | MCP Connector for Grasshopper | Rhino 8 / Rhino.Inside Revit |
+| [`unreal-connector`](unreal/skills/unreal-connector/SKILL.md) | MCP Connector for Unreal Engine | Unreal Engine 5.8+ |
 
 Skills work with both Free and Pro editions. Each playbook covers the full
 tool family, and your AI simply uses whichever tools your edition provides.

@@ -40,6 +40,11 @@
       "name": "grasshopper-connector",
       "source": "./grasshopper",
       "description": "Operator skill for MCP Connector for Grasshopper - build, inspect, run and fix Grasshopper definitions with AI, including Rhino.Inside Revit."
+    },
+    {
+      "name": "unreal-connector",
+      "source": "./unreal",
+      "description": "Operator skill for MCP Connector for Unreal Engine - archviz lighting, look development, dressing, design options and walkthrough delivery with AI."
     }
   ]
 }

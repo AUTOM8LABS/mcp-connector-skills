@@ -1,0 +1,10 @@
+{
+  "name": "unreal-connector",
+  "description": "Operator skill for MCP Connector for Unreal Engine (AUTOM8LABS) - archviz lighting, look development, dressing, design options, walkthrough delivery and rendering, alongside Unreal's own in-engine MCP toolsets.",
+  "version": "1.0.0",
+  "author": {
+    "name": "AUTOM8LABS",
+    "email": "info@autom8labs.io",
+    "url": "https://autom8labs.io"
+  }
+}
