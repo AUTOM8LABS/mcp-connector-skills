@@ -123,6 +123,23 @@ edits.
 | see the drawing state | get_drawing_info, get_entity_count, list_layers |
 | find entities | get_entities (filtered), select_by_filter |
 | find or fix text | find_text, replace_text, count_text_patterns |
+| many small creates (walls, window lines, hatches, texts) | run_batch with the list of `{tool, params}`: one round trip, one undo step, every result back in order. Leave stopOnError on unless every call is independent |
+| a run of dimensions along a wall | create_dimension_linear with `points` (consecutive, like DIMCONTINUE) and `overall: true` for the total; one call per wall, not one per opening |
+| hide the viewport frame on a sheet | viewport on Defpoints, then set_layer_properties `isOff: true` on Defpoints - the view stays, the frame goes; frozen would hide the view too |
+| a centred or right-aligned label | create_text with `horizontalMode` (and `verticalMode`) about x,y; read back `alignmentPoint`, no bounding-box correction needed |
+| text in a fixed-height style | create_text with `style` and no `height`; the reply's `heightSource` says `style`. Pass `height` only to override |
+| turn drawn geometry into a block | create_block_definition with `basePointX/Y`; the geometry stays where the reference is inserted |
+| symbols from a library DWG, placed | import_blocks with `insert: [{x, y, rotation, dynamicProperties}]`; the unit scale is applied for you |
+| room labels that miss the door swings | label_areas does it by default (`avoidClashes`); read each label's `placement` to see what moved |
+| prove a room is really closed before quoting its area | measure_areas / label_areas / create_boundary with `gapTolerance` (drawing units); read `closureCheck` |
+| annotative dimensions that show | set CANNOSCALE in model space first, create_dimension_style with `annotative: true, scale: 0`, then dimension; the reply's `annotation.scales` must list the sheet scale |
+| many sheets from one template | create_sheets_from_layout with `dryRun: true` first, then without; viewports by `index`, titles by `texts: [{find, replace}]` |
+| a compact schedule table | list_table_styles, create_table_style (`dataTextHeight`, `verticalMargin`), create_table with `style` and `columnWidths`; tune against the reply's `format` |
+| a border or title block on a sheet | set_page_setup with `mediaName` + `orientation`, then read `layout.paper.sheet` - paper-space (0,0) is the PRINTABLE corner, not the paper; draw the border from `sheet`, or import_blocks the office title block (`wholeDrawing`, `insert` at the sheet corner, `space: "<layout>"`) |
+| a North American or Japanese sheet | list_paper_sizes (ANSI, ARCH, JIS B with the device's media names), then set_page_setup with `mediaName` + `orientation`; scales accept `1/4" = 1'-0"` and `1" = 20'` |
+| trace a scan, sketch or photo into linework | trace_image (`filePath` + `x`, `y`, `width` or `paperScale`, or the `handle` of an attached image); tune `threshold` / `minLength` from the reply's `stages`; then calibrate_image with two picked points and the true distance, passing the traced `handles` |
+| a facade for context from a Google Earth or site photo | attach_image, then trace_image `mode: "edges"`, `orthogonalize: true`, a `region` around the building (drawing coordinates); busy result: raise `minLength` (40-80); then calibrate_image on a storey height or door width |
+| black-and-white sheet preview and plot | set_page_setup with `styleSheet: "monochrome.ctb", displayPlotStyles: true, plotWithPlotStyles: true` |
 | draw 2D | create_line, create_polyline, create_circle, create_hatch |
 | put content on a sheet | any creation tool with `space: "<layout name>"` |
 | read a sheet | get_entities / find_text / get_entity_count with `space` |
