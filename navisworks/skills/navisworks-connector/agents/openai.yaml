@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS Navisworks"
+  short_description: "Operate Navisworks tools with focused reads"
+  default_prompt: "Use $navisworks-connector to inspect the connected Navisworks session without changing it."

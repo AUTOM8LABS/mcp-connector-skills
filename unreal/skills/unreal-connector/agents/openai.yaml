@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS Unreal Engine"
+  short_description: "Operate Unreal Engine tools with focused reads"
+  default_prompt: "Use $unreal-connector to inspect the connected Unreal Engine session without changing it."

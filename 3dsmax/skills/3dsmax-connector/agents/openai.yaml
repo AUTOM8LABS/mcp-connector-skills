@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS 3ds Max"
+  short_description: "Operate 3ds Max tools with focused reads"
+  default_prompt: "Use $3dsmax-connector to inspect the connected 3ds Max session without changing it."

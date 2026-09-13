@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS AutoCAD"
+  short_description: "Operate AutoCAD tools with focused reads"
+  default_prompt: "Use $autocad-connector to inspect the connected AutoCAD session without changing it."

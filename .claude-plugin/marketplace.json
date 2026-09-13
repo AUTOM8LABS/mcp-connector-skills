@@ -1,0 +1,50 @@
+{
+  "name": "autom8labs-mcp-skills",
+  "owner": {
+    "name": "AUTOM8LABS",
+    "email": "info@autom8labs.io",
+    "url": "https://autom8labs.io"
+  },
+  "plugins": [
+    {
+      "name": "revit-connector",
+      "source": "./revit",
+      "description": "Operate AUTOM8LABS Revit MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "autocad-connector",
+      "source": "./autocad",
+      "description": "Operate AUTOM8LABS AutoCAD MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "navisworks-connector",
+      "source": "./navisworks",
+      "description": "Operate AUTOM8LABS Navisworks MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "microstation-connector",
+      "source": "./microstation",
+      "description": "Operate AUTOM8LABS MicroStation MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "dynamo-connector",
+      "source": "./dynamo",
+      "description": "Operate AUTOM8LABS Dynamo MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "3dsmax-connector",
+      "source": "./3dsmax",
+      "description": "Operate AUTOM8LABS 3ds Max MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "grasshopper-connector",
+      "source": "./grasshopper",
+      "description": "Operate AUTOM8LABS Grasshopper MCP tools efficiently with scoped reads and verified changes."
+    },
+    {
+      "name": "unreal-connector",
+      "source": "./unreal",
+      "description": "Operate AUTOM8LABS Unreal Engine MCP tools efficiently with scoped reads and verified changes."
+    }
+  ]
+}

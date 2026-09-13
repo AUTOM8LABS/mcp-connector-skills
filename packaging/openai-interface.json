@@ -1,0 +1,15 @@
+{
+  "displayName": "AUTOM8LABS Operator Skills",
+  "shortDescription": "Operate AEC applications with AUTOM8LABS MCP",
+  "longDescription": "Operating guidance for Revit, AutoCAD, Navisworks, MicroStation, Dynamo, 3ds Max, Grasshopper and Unreal Engine. Requires the corresponding AUTOM8LABS connector and a client connection to the live host.",
+  "developerName": "AUTOM8LABS",
+  "category": "Productivity",
+  "capabilities": [],
+  "websiteURL": "https://autom8labs.io",
+  "defaultPrompt": [
+    "Inspect the connected Revit model without changing it.",
+    "Check the active AutoCAD drawing and its units.",
+    "List the connected AEC hosts and available capabilities."
+  ],
+  "brandColor": "#00D4FF"
+}

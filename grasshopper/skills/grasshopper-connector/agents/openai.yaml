@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS Grasshopper"
+  short_description: "Operate Grasshopper tools with focused reads"
+  default_prompt: "Use $grasshopper-connector to inspect the connected Grasshopper session without changing it."

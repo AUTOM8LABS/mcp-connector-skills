@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS Revit"
+  short_description: "Operate Revit tools with focused reads"
+  default_prompt: "Use $revit-connector to inspect the connected Revit session without changing it."

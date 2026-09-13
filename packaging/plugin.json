@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "autom8labs-operator-skills",
+  "version": "2.0.1",
+  "description": "Operate AUTOM8LABS MCP Connectors with focused reads, batched operations and verified results.",
+  "author": {
+    "name": "AUTOM8LABS",
+    "email": "info@autom8labs.io",
+    "url": "https://autom8labs.io"
+  },
+  "homepage": "https://github.com/AUTOM8LABS/mcp-connector-skills",
+  "repository": "https://github.com/AUTOM8LABS/mcp-connector-skills",
+  "keywords": [
+    "aec",
+    "bim",
+    "cad",
+    "autom8labs",
+    "mcp"
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS MicroStation"
+  short_description: "Operate MicroStation tools with focused reads"
+  default_prompt: "Use $microstation-connector to inspect the connected MicroStation session without changing it."

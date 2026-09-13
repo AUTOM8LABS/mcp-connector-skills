@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUTOM8LABS Dynamo"
+  short_description: "Operate Dynamo tools with focused reads"
+  default_prompt: "Use $dynamo-connector to inspect the connected Dynamo session without changing it."
